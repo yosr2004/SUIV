@@ -1,0 +1,85 @@
+@startuml SUIV - Diagramme Entité-Association
+
+' Configuration de base
+skinparam classFontSize 14
+skinparam classFontName Arial
+skinparam classAttributeFontSize 12
+skinparam linetype ortho
+skinparam roundcorner 8
+skinparam padding 2
+skinparam backgroundColor white
+
+' Définition des entités
+class User {
+  <b>_id : ObjectId</b>
+  firstName : String
+  lastName : String
+  email : String
+  password : String
+  bio : String
+  contact : Object
+  professional : Object
+  skills : Array
+  avatar : String
+  roles : Array
+  mentorProfile : Object
+  isOnline : Boolean
+  lastSeen : Date
+  createdAt : Date
+  updatedAt : Date
+}
+
+class Profile {
+  <b>_id : ObjectId</b>
+  user : ObjectId
+  personalInfo : Object
+  professional : Object
+  experiences : Array
+  education : Array
+  languages : Array
+  cvFiles : Array
+  cvAnalysis : Object
+  completionPercentage : Number
+  createdAt : Date
+  updatedAt : Date
+}
+
+class Conversation {
+  
+}
+
+class Message {
+  <b>_id : ObjectId</b>
+  senderId : ObjectId
+  receiverId : ObjectId
+  conversationId : ObjectId
+  content : String
+  attachments : Array
+  isRead : Boolean
+  readAt : Date
+  status : String
+  fileUrl : String
+  createdAt : Date
+  updatedAt : Date
+}
+
+' Notes explicatives
+note right of User : Gère les informations utilisateur\net l'authentification
+note right of Profile : Stocke le CV et l'expérience\nprofessionnelle détaillée
+note right of Conversation : Gère les groupes de discussion\nentre utilisateurs
+note right of Message : Stocke les messages échangés\nentre utilisateurs
+
+' Relations
+User "1" -- "1" Profile : possède >
+User "1" -- "*" Message : envoie >
+User "*" -- "*" Conversation : participe à >
+Conversation "1" -- "*" Message : contient >
+Message "*" -- "1" Conversation : appartient à >
+
+' Coloration
+User #B5DBFF
+Profile #C3E6CB
+Conversation #FFE6B5
+Message #FFCCCC
+
+@enduml 

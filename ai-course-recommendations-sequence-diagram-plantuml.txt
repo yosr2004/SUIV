@@ -1,0 +1,39 @@
+@startuml AI Course Recommendations Sequence Diagram
+
+actor "Utilisateur" as User
+participant "Frontend (React)" as Frontend
+participant "AIAssistant\nComponent" as AIComponent
+participant "Backend Server" as Backend
+participant "API Cohere" as Cohere
+database "MongoDB" as DB
+
+== Recommandations de cours ==
+
+User -> Frontend: Demander "Quels cours\nme recommandez-vous?"
+Frontend -> AIComponent: Transmettre la requête
+
+AIComponent -> Backend: POST /ai/course-recommendations\n(userId, domaine optionnel)
+
+Backend -> DB: Récupérer le profil utilisateur\n(niveau, intérêts, objectifs)
+DB --> Backend: Données du profil
+
+Backend -> DB: Récupérer l'historique des cours\ndéjà suivis
+DB --> Backend: Historique d'apprentissage
+
+Backend -> Backend: Récupérer catalogue\nde cours prédéfinis
+Backend -> Backend: Filtrer les cours déjà suivis
+
+Backend -> Backend: Préparer le prompt avec contexte\n(profil + historique + catalogue)
+Backend -> Cohere: Requête API avec contexte enrichi
+Cohere --> Backend: Liste de cours recommandés\npriorisés et justifiés
+
+Backend -> Backend: Structurer les résultats\n(extractValidJSON)
+Backend -> Backend: Organiser les cours par\ncatégorie et niveau de difficulté
+Backend -> DB: Sauvegarder les recommandations\ndans l'historique utilisateur
+
+Backend --> AIComponent: Liste de cours recommandés\navec métadonnées (durée, niveau, etc.)
+
+AIComponent -> AIComponent: Formater l'affichage\ndes recommandations
+AIComponent -> User: Afficher les cours recommandés\navec justifications personnalisées
+
+@enduml 

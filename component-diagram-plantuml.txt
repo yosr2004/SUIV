@@ -1,0 +1,124 @@
+@startuml SUIV - Diagramme de Composants
+
+skinparam componentStyle rectangle
+skinparam backgroundColor white
+skinparam monochrome false
+
+package "Frontend" {
+  [Interface Utilisateur] as UI
+  [Composants React] as React
+  [Material UI] as MUI
+  
+  package "Modules Fonctionnels" {
+    [Gestionnaire de Profil] as ProfileManager
+    [Assistant IA] as AIAssistant
+    [Évaluation Compétences] as SkillsAssessment
+    [Planification Carrière] as CareerPlanning
+    [Recommandations Formation] as TrainingRecommendations
+    [Networking] as Networking
+    [Messagerie] as Messaging
+  }
+  
+  package "Services Frontend" {
+    [Service AI] as AIService
+    [Service Authentification] as AuthService
+    [Service Messages] as MessageService
+    [Service HTTP] as HTTPService
+    [Service WebSocket] as WebSocketService
+  }
+}
+
+package "Backend" {
+  [Serveur Express] as ExpressServer
+  [Serveur Socket.IO] as SocketServer
+  
+  package "Routes API" {
+    [Routes Authentification] as AuthRoutes
+    [Routes Messages] as MessageRoutes
+    [Routes Profil] as ProfileRoutes
+    [Routes IA] as AIRoutes
+  }
+  
+  package "Services Backend" {
+    [Service Cohere AI] as CohereService
+    [Service Authentification] as AuthBackendService
+    [Service Messages] as MessageBackendService
+    [Service Profil] as ProfileBackendService
+  }
+  
+  package "Middleware" {
+    [Auth Middleware] as AuthMiddleware
+    [Upload Middleware] as UploadMiddleware
+  }
+}
+
+database "MongoDB" {
+  [Collection Utilisateurs] as UsersCollection
+  [Collection Messages] as MessagesCollection
+  [Collection Conversations] as ConversationsCollection
+  [Collection Profils] as ProfilesCollection
+}
+
+cloud "Services Externes" {
+  [API Cohere] as CohereAPI
+}
+
+' Relations entre composants
+UI --> React
+React --> MUI
+React --> ProfileManager
+React --> AIAssistant
+React --> SkillsAssessment
+React --> CareerPlanning
+React --> TrainingRecommendations
+React --> Networking
+React --> Messaging
+
+ProfileManager --> HTTPService
+AIAssistant --> AIService
+Messaging --> MessageService
+Messaging --> WebSocketService
+
+AuthService --> HTTPService
+MessageService --> HTTPService
+MessageService --> WebSocketService
+AIService --> HTTPService
+
+HTTPService --> ExpressServer
+WebSocketService --> SocketServer
+
+ExpressServer --> AuthRoutes
+ExpressServer --> MessageRoutes
+ExpressServer --> ProfileRoutes
+ExpressServer --> AIRoutes
+
+AuthRoutes --> AuthMiddleware
+AuthRoutes --> AuthBackendService
+MessageRoutes --> AuthMiddleware
+MessageRoutes --> MessageBackendService
+ProfileRoutes --> AuthMiddleware
+ProfileRoutes --> ProfileBackendService
+AIRoutes --> AuthMiddleware
+AIRoutes --> CohereService
+AIRoutes --> UploadMiddleware
+
+AuthBackendService --> UsersCollection
+MessageBackendService --> MessagesCollection
+MessageBackendService --> ConversationsCollection
+ProfileBackendService --> ProfilesCollection
+
+CohereService --> CohereAPI
+
+' Interfaces
+interface "HTTP/REST" as HTTPAPI
+interface "WebSocket" as WSInterface
+interface "MongoDB Driver" as MongoInterface
+
+ExpressServer -- HTTPAPI
+SocketServer -- WSInterface
+UsersCollection -- MongoInterface
+MessagesCollection -- MongoInterface
+ConversationsCollection -- MongoInterface
+ProfilesCollection -- MongoInterface
+
+@enduml 

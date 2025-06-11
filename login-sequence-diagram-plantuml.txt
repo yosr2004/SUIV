@@ -1,0 +1,70 @@
+@startuml
+actor User
+participant "Interface Utilisateur\n(SignIn)" as UI
+participant "AuthContext" as Context
+participant "AuthService" as Service
+participant "API Backend\n(authRoutes)" as API
+database "Base de données\n(MongoDB)" as DB
+
+User -> UI: Remplit le formulaire de connexion
+note over User, UI
+  Email, mot de passe
+end note
+
+User -> UI: Clique sur "Se connecter"
+UI -> UI: Valide les entrées du formulaire
+note over UI
+  Vérifie que les champs sont remplis
+end note
+
+alt Validation échoue
+    UI --> User: Affiche les erreurs de validation
+else Validation réussie
+    UI -> Context: login(email, password)
+    Context -> Context: setLoading(true)
+    Context -> Context: setError(null)
+    Context -> Service: authService.login(email, password)
+    
+    Service -> API: apiClient.post("/signin", {email, password})
+    
+    API -> DB: User.findOne({email})
+    note over API, DB
+      Recherche l'utilisateur par email
+    end note
+    
+    alt Utilisateur non trouvé
+        DB --> API: null
+        API --> Service: Status 400: User not found
+        Service --> Context: {success: false, error: "User not found"}
+        Context -> Context: setError("User not found")
+        Context --> UI: {success: false, error: "User not found"}
+        UI --> User: Affiche toast d'erreur "Utilisateur non trouvé"
+    else Utilisateur trouvé
+        DB --> API: user
+        API -> API: user.comparePassword(password)
+        
+        alt Mot de passe incorrect
+            API --> Service: Status 400: Invalid password
+            Service --> Context: {success: false, error: "Invalid password"}
+            Context -> Context: setError("Invalid password")
+            Context --> UI: {success: false, error: "Invalid password"}
+            UI --> User: Affiche toast d'erreur "Mot de passe incorrect"
+        else Mot de passe correct
+            API -> API: Génère JWT token
+            API --> Service: Status 200: {user, token}
+            
+            Service -> Service: Normalise les données utilisateur
+            Service -> Service: Stocke le token dans sessionStorage
+            Service --> Context: {success: true, data: {user, token}}
+            
+            Context -> Context: setCurrentUser(user)
+            Context -> Context: setLoading(false)
+            Context --> UI: {success: true}
+            
+            UI -> UI: setSuccessMessage("Connexion réussie")
+            UI --> User: Affiche toast "Connexion réussie"
+            UI -> UI: Redirection vers dashboard
+        end
+    end
+end
+@enduml 

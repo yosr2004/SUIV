@@ -1,0 +1,71 @@
+@startuml AI Assistant Sequence Diagram
+
+actor "Utilisateur" as User
+participant "Frontend (React)" as Frontend
+participant "AIAssistant\nComponent" as AIComponent
+participant "AIService.js" as AIService
+participant "Backend Server" as Backend
+participant "API Cohere" as Cohere
+database "MongoDB" as DB
+
+== Initialisation ==
+
+User -> Frontend: Accéder à l'interface IA
+Frontend -> AIComponent: Charger le composant AIAssistant
+AIComponent -> AIComponent: Initialiser l'état\n(messages, settings)
+AIComponent -> User: Afficher message d'accueil\net suggestions
+
+== Envoi d'une question à l'IA ==
+
+User -> AIComponent: Saisir et envoyer une question
+AIComponent -> AIComponent: Ajouter la question\naux messages (état local)
+AIComponent -> AIComponent: Activer l'état de chargement
+AIComponent -> AIService: generateAIResponse(question)
+AIService -> AIService: categorizeMessage(question)
+AIService -> AIService: Créer un prompt contextuel\nbasé sur la catégorie
+
+alt Utilisation de l'API Cohere directe
+    AIService -> Cohere: Requête API Cohere\n(prompt, paramètres)
+    Cohere --> AIService: Réponse générée
+else Utilisation du Backend comme intermédiaire
+    AIService -> Backend: POST /ai/generate\n(prompt, context)
+    Backend -> Cohere: Requête API Cohere\n(prompt enrichi, paramètres)
+    Cohere --> Backend: Réponse générée
+    Backend -> Backend: Traiter et formatter\nla réponse (extractValidJSON)
+    Backend --> AIService: Réponse formatée
+end
+
+AIService -> AIService: formatResponse(réponse, catégorie)
+AIService --> AIComponent: Réponse formatée
+AIComponent -> AIComponent: Ajouter la réponse aux messages
+AIComponent -> AIComponent: Désactiver l'état de chargement
+AIComponent -> AIComponent: Sauvegarder la conversation\n(localStorage)
+AIComponent -> User: Afficher la réponse
+
+== Interactions supplémentaires ==
+
+User -> AIComponent: Cliquer sur une suggestion rapide
+AIComponent -> AIComponent: Utiliser le texte de la suggestion\ncomme input
+AIComponent -> AIService: generateAIResponse(suggestion)
+note right: Suit le même flux que l'envoi d'une question
+
+User -> AIComponent: Télécharger la conversation
+AIComponent -> User: Fichier de conversation au format texte
+
+User -> AIComponent: Effacer la conversation
+AIComponent -> AIComponent: Réinitialiser les messages
+AIComponent -> AIComponent: Sauvegarder l'état vide\n(localStorage)
+AIComponent -> User: Afficher nouvelle conversation
+
+== Analyse CV (Fonctionnalité avancée) ==
+
+User -> AIComponent: Téléverser un CV
+AIComponent -> Backend: POST /ai/analyze-cv\n(fichier)
+Backend -> Backend: Extraire le texte du CV\n(PDF, DOC, DOCX)
+Backend -> Cohere: Requête avec contexte CV\n+ instructions d'analyse
+Cohere --> Backend: Analyse structurée du CV
+Backend -> DB: Stocker les résultats d'analyse\n(optionnel)
+Backend --> AIComponent: Résultats d'analyse
+AIComponent -> User: Afficher l'analyse du CV\net les recommandations
+
+@enduml 

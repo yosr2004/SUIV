@@ -1,0 +1,72 @@
+@startuml
+actor User
+participant "Interface Utilisateur\n(SignupPage)" as UI
+participant "AuthContext" as Context
+participant "AuthService" as Service
+participant "API Backend\n(authRoutes)" as API
+database "Base de données\n(MongoDB)" as DB
+
+User -> UI: Remplit le formulaire d'inscription
+note over User, UI
+  Prénom, nom, email, mot de passe
+end note
+
+User -> UI: Clique sur "S'inscrire"
+UI -> UI: Valide les entrées du formulaire
+note over UI
+  Vérifie les champs obligatoires,
+  format d'email, longueur du mot de passe,
+  correspondance des mots de passe
+end note
+
+alt Validation échoue
+    UI --> User: Affiche les erreurs de validation
+else Validation réussie
+    UI -> Context: register(userData)
+    Context -> Context: setLoading(true)
+    Context -> Service: authService.register(userData)
+    
+    Service -> API: apiClient.post("/signup", userData)
+    note over Service, API
+      firstName, lastName, email, password
+    end note
+    
+    API -> DB: User.findOne({email})
+    note over API, DB
+      Vérifie si l'email existe déjà
+    end note
+    
+    alt Email existe déjà
+        DB --> API: Utilisateur existant
+        API --> Service: Status 400: Email already exists
+        Service --> Context: {success: false, error: "Email already exists"}
+        Context --> UI: {success: false, error: "Email already exists"}
+        UI --> User: Affiche erreur "Email already exists"
+    else Email disponible
+        API -> DB: new User({firstName, lastName, email, password})
+        note over API, DB
+          Crée un nouvel utilisateur
+        end note
+        
+        DB -> DB: Hache le mot de passe
+        note over DB
+          Via le middleware pre('save')
+        end note
+        
+        DB --> API: Utilisateur créé
+        API -> API: Génère JWT token
+        API --> Service: Status 201: {user, token}
+        
+        Service -> Service: Normalise les données utilisateur
+        Service -> Service: Stocke le token dans sessionStorage
+        Service --> Context: {success: true, data: {user, token}}
+        
+        Context -> Context: setCurrentUser(user)
+        Context -> Context: setLoading(false)
+        Context --> UI: {success: true}
+        
+        UI --> User: Redirection vers dashboard
+        UI --> User: Affiche toast "Inscription réussie"
+    end
+end
+@enduml 

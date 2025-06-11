@@ -1,0 +1,115 @@
+@startuml SUIV - Diagramme de Cas d'Utilisation
+
+' Définition des acteurs
+:Utilisateur non authentifié: as NonAuth
+:Utilisateur authentifié: as Auth
+:Mentor: as Mentor
+:Système IA: as AI
+
+' Paquets principaux
+package "Authentification" {
+  usecase "S'inscrire" as SignUp
+  usecase "Se connecter" as SignIn
+  usecase "Récupérer mot de passe" as RecoverPassword
+}
+
+package "Gestion de profil" {
+  usecase "Consulter profil" as ViewProfile
+  usecase "Modifier profil" as EditProfile
+  usecase "Télécharger CV" as UploadCV
+  usecase "Définir objectifs professionnels" as SetGoals
+}
+
+package "Compétences et Évaluation" {
+  usecase "Évaluer ses compétences" as AssessSkills
+  usecase "Suivre progression des compétences" as TrackSkills
+  usecase "Consulter recommandations de compétences" as ViewSkillRecommendations
+}
+
+package "Développement de carrière" {
+  usecase "Planifier sa carrière" as PlanCareer
+  usecase "Consulter opportunités professionnelles" as ViewOpportunities
+  usecase "Définir plan de développement" as DefineDevelopmentPlan
+}
+
+package "Formation" {
+  usecase "Consulter formations recommandées" as ViewTrainings
+  usecase "S'inscrire à une formation" as EnrollTraining
+  usecase "Suivre progression de formation" as TrackTraining
+  usecase "Consulter ressources pédagogiques" as ViewResources
+}
+
+package "Networking" {
+  usecase "Rechercher contacts professionnels" as SearchContacts
+  usecase "Envoyer demande de connexion" as SendConnectionRequest
+  usecase "Consulter réseau professionnel" as ViewNetwork
+}
+
+package "Messagerie" {
+  usecase "Envoyer message" as SendMessage
+  usecase "Consulter conversations" as ViewConversations
+  usecase "Créer conversation" as CreateConversation
+}
+
+package "Assistant IA" {
+  usecase "Demander conseils carrière" as AskCareerAdvice
+  usecase "Obtenir recommandations IA" as GetAIRecommendations
+  usecase "Analyser CV" as AnalyzeCV
+  usecase "Consulter recommandations de cours" as ViewCourseRecommendations
+}
+
+' Relations entre acteurs et cas d'utilisation
+NonAuth --> SignUp
+NonAuth --> SignIn
+NonAuth --> RecoverPassword
+
+Auth --> ViewProfile
+Auth --> EditProfile
+Auth --> UploadCV
+Auth --> SetGoals
+
+Auth --> AssessSkills
+Auth --> TrackSkills
+Auth --> ViewSkillRecommendations
+
+Auth --> PlanCareer
+Auth --> ViewOpportunities
+Auth --> DefineDevelopmentPlan
+
+Auth --> ViewTrainings
+Auth --> EnrollTraining
+Auth --> TrackTraining
+Auth --> ViewResources
+
+Auth --> SearchContacts
+Auth --> SendConnectionRequest
+Auth --> ViewNetwork
+
+Auth --> SendMessage
+Auth --> ViewConversations
+Auth --> CreateConversation
+
+Auth --> AskCareerAdvice
+Auth --> GetAIRecommendations
+Auth --> AnalyzeCV
+Auth --> ViewCourseRecommendations
+
+' Relations spécifiques au Mentor
+Mentor --|> Auth
+Mentor --> "Conseiller utilisateurs" as AdviseUsers
+Mentor --> "Valider compétences" as ValidateSkills
+Mentor --> "Recommander formations" as RecommendTrainings
+
+' Relations avec le système IA
+AI --> GetAIRecommendations
+AI --> ViewCourseRecommendations
+AI --> ViewSkillRecommendations
+AI --> AnalyzeCV
+
+' Inclusions et extensions
+ViewProfile <.. ViewSkillRecommendations : <<include>>
+AskCareerAdvice ..> GetAIRecommendations : <<include>>
+UploadCV <.. AnalyzeCV : <<extend>>
+ViewTrainings <.. ViewCourseRecommendations : <<include>>
+
+@enduml 

@@ -1,0 +1,69 @@
+@startuml SUIV - Diagramme de Composants avec Routes/Contrôleurs
+
+skinparam componentStyle rectangle
+skinparam backgroundColor white
+
+package "Frontend" {
+  [Interface Utilisateur] as UI
+  [Router] as Router
+  [Assistant IA] as AIAssistant
+  [Gestion Profil] as Profile
+  [Messagerie] as Messaging
+  [Compétences & Formation] as Skills
+}
+
+package "Backend" {
+  [Serveur Express] as ExpressServer
+  [Serveur Socket.IO] as SocketServer
+  
+  package "Routes/Contrôleurs" {
+    [Contrôleur Auth] as AuthController
+    [Contrôleur Messages] as MessageController
+    [Contrôleur Profil] as ProfileController
+    [Contrôleur IA] as AIController
+  }
+  
+  [Services IA] as AIServices
+  [Middleware] as Middleware
+}
+
+database "Base de Données" as DB
+
+cloud "Services Externes" {
+  [API Cohere] as CohereAPI
+}
+
+' Relations principales
+UI --> Router
+Router --> AIAssistant
+Router --> Profile
+Router --> Messaging
+Router --> Skills
+
+AIAssistant --> ExpressServer
+Profile --> ExpressServer
+Messaging --> ExpressServer
+Messaging --> SocketServer
+Skills --> ExpressServer
+
+ExpressServer --> Middleware
+Middleware --> AuthController
+Middleware --> MessageController
+Middleware --> ProfileController
+Middleware --> AIController
+
+AuthController --> DB
+MessageController --> DB
+ProfileController --> DB
+MessageController --> SocketServer
+AIController --> AIServices
+AIServices --> CohereAPI
+
+' Interfaces simplifiées
+interface "HTTP/REST" as HTTPAPI
+interface "WebSocket" as WSInterface
+
+ExpressServer -- HTTPAPI
+SocketServer -- WSInterface
+
+@enduml 

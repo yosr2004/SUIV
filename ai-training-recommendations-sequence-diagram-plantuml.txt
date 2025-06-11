@@ -1,0 +1,54 @@
+@startuml AI Training Recommendations Sequence Diagram
+
+actor "Utilisateur" as User
+participant "Frontend (React)" as Frontend
+participant "AIAssistant\nComponent" as AIComponent
+participant "Backend Server" as Backend
+participant "API Cohere" as Cohere
+database "MongoDB" as DB
+
+== Recommandations de formation ==
+
+User -> Frontend: Demander des formations recommandées
+Frontend -> AIComponent: Transmettre la requête
+
+AIComponent -> Backend: POST /ai/training-recommendations\n(userId, critères optionnels)
+
+Backend -> DB: Récupérer le profil utilisateur\n(compétences, expérience, objectifs)
+DB --> Backend: Données du profil
+
+Backend -> DB: Récupérer l'historique des formations\ndéjà suivies
+DB --> Backend: Historique des formations
+
+Backend -> Backend: Récupérer catalogue\nde formations prédéfinies
+
+Backend -> Backend: Préparer le prompt pour l'IA\n(profil + historique + catalogue)
+Backend -> Cohere: Requête API avec contexte enrichi
+Cohere --> Backend: Sélection et priorisation\ndes formations
+
+Backend -> Backend: Structurer les résultats\n(extractValidJSON)
+Backend -> Backend: Enrichir avec détails\n(durée, prérequis, liens, difficulté)
+Backend -> Backend: Organiser les formations\npar pertinence et type
+Backend -> DB: Sauvegarder les recommandations\n(pour historique)
+
+Backend --> AIComponent: Liste de formations\nrecommandées et personnalisées
+
+AIComponent -> AIComponent: Formater l'affichage\ndes recommandations
+AIComponent -> User: Afficher les formations recommandées\navec options d'inscription
+
+User -> Frontend: Cliquer sur une formation
+Frontend -> Backend: GET /training/:id\n(détails complets)
+Backend -> DB: Récupérer détails formation
+DB --> Backend: Détails complets
+Backend --> Frontend: Détails de la formation
+Frontend -> User: Afficher détails et ressources
+
+== Feedback et amélioration ==
+
+User -> Frontend: Évaluer utilité de recommandation\n(étoiles ou pouce levé/baissé)
+Frontend -> Backend: POST /ai/feedback\n(trainingRecommendationId, rating)
+Backend -> DB: Sauvegarder le feedback
+Backend -> Backend: Ajuster le modèle de\nrecommandation pour l'utilisateur
+Backend -> DB: Mettre à jour les préférences\nde recommandation
+
+@enduml 

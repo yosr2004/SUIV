@@ -1,0 +1,92 @@
+@startuml SUIV - Diagramme de Cas d'Utilisation Simplifié
+
+left to right direction
+skinparam packageStyle rectangle
+
+actor "Utilisateur non authentifié" as NonAuth
+actor "Utilisateur authentifié" as Auth
+actor "Mentor" as Mentor
+actor "Système IA" as AI
+
+rectangle Authentification {
+  usecase "S'inscrire" as UC1
+  usecase "Se connecter" as UC2
+  usecase "Récupérer mot de passe" as UC3
+}
+
+rectangle "Gestion de profil" {
+  usecase "Consulter profil" as UC4
+  usecase "Modifier profil" as UC5
+  usecase "Télécharger CV" as UC6
+}
+
+rectangle "Compétences" {
+  usecase "Évaluer compétences" as UC7
+  usecase "Suivre progression" as UC8
+  usecase "Voir recommandations" as UC9
+}
+
+rectangle "Carrière" {
+  usecase "Planifier carrière" as UC10
+  usecase "Voir opportunités" as UC11
+}
+
+rectangle "Formation" {
+  usecase "Voir formations" as UC12
+  usecase "S'inscrire formation" as UC13
+  usecase "Consulter ressources" as UC14
+}
+
+rectangle "Networking" {
+  usecase "Rechercher contacts" as UC15
+  usecase "Gérer réseau" as UC16
+}
+
+rectangle "Messagerie" {
+  usecase "Envoyer message" as UC17
+  usecase "Gérer conversations" as UC18
+}
+
+rectangle "Assistant IA" {
+  usecase "Demander conseils" as UC19
+  usecase "Obtenir recommandations" as UC20
+  usecase "Analyser CV" as UC21
+}
+
+' Relations simples
+NonAuth --> UC1
+NonAuth --> UC2
+NonAuth --> UC3
+
+Auth --> UC4
+Auth --> UC5
+Auth --> UC6
+Auth --> UC7
+Auth --> UC8
+Auth --> UC9
+Auth --> UC10
+Auth --> UC11
+Auth --> UC12
+Auth --> UC13
+Auth --> UC14
+Auth --> UC15
+Auth --> UC16
+Auth --> UC17
+Auth --> UC18
+Auth --> UC19
+Auth --> UC20
+Auth --> UC21
+
+' Héritage
+Mentor -|> Auth
+
+' Relations spécifiques au Mentor
+Mentor --> (Conseiller utilisateurs)
+Mentor --> (Valider compétences)
+
+' Relations avec le système IA
+AI --> UC20
+AI --> UC21
+AI --> UC9
+
+@enduml 

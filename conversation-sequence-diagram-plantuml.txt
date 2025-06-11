@@ -1,0 +1,81 @@
+@startuml Conversation Sequence Diagram
+
+actor "Utilisateur A" as UserA
+actor "Utilisateur B" as UserB
+participant "Frontend (Client)" as Frontend
+participant "Backend (Server)" as Backend
+participant "Socket.io Server" as Socket
+database "MongoDB" as DB
+
+== Initialisation ==
+
+UserA -> Frontend: Se connecte à l'application
+Frontend -> Backend: GET /auth/login
+Backend -> DB: Vérifier les identifiants
+DB --> Backend: Identifiants valides
+Backend --> Frontend: Token JWT + données utilisateur
+Frontend -> Socket: Connexion socket (userId)
+Socket -> DB: Mettre à jour User.isOnline = true
+Socket --> Frontend: Confirmation de connexion
+Socket -> Socket: Diffuser le statut en ligne (broadcastOnlineStatus)
+
+== Création d'une conversation ==
+
+UserA -> Frontend: Initier une conversation avec l'Utilisateur B
+Frontend -> Backend: POST /messages/conversations\n{participantId, message, topic}
+Backend -> DB: Vérifier si une conversation existe déjà
+Backend -> DB: Créer Conversation\n{participants: [userIdA, userIdB], type: 'direct'}
+alt Message initial fourni
+    Backend -> DB: Créer Message\n{senderId, receiverId, conversationId, content}
+    Backend -> DB: Mettre à jour Conversation.lastMessage
+end
+Backend --> Frontend: Détails de la conversation
+
+== Échange de messages ==
+
+UserA -> Frontend: Envoyer un message
+Frontend -> Socket: Émission 'new_message'\n{senderId, receiverId, content, conversationId}
+Socket -> DB: Sauvegarder le message
+Socket -> DB: Mettre à jour Conversation\n{lastMessage, lastMessageText, lastMessageTime}
+Socket -> DB: Incrémenter Conversation.unreadCount pour receiverId
+
+alt UserB est en ligne
+    Socket -> Frontend: Émission 'message_received' à UserB
+    Frontend --> UserB: Afficher le nouveau message
+    UserB -> Frontend: Visualiser le message
+    Frontend -> Backend: GET /messages/conversations/:id/messages
+    Backend -> DB: Marquer les messages comme lus
+    Backend -> DB: Mettre à jour unreadCount = 0
+    Backend --> Frontend: Messages avec statut mis à jour
+else UserB est hors ligne
+    DB -> DB: Conserver unreadCount jusqu'à la prochaine connexion
+end
+
+== Récupération des conversations ==
+
+UserB -> Frontend: Se connecte à l'application
+Frontend -> Backend: GET /auth/login
+Backend --> Frontend: Token JWT + données utilisateur
+Frontend -> Socket: Connexion socket (userId)
+Frontend -> Backend: GET /messages/conversations
+Backend -> DB: Récupérer les conversations de l'utilisateur
+DB --> Backend: Liste des conversations
+Backend --> Frontend: Conversations formatées avec unreadCount
+Frontend --> UserB: Afficher les conversations avec badges de messages non lus
+
+UserB -> Frontend: Ouvrir une conversation
+Frontend -> Backend: GET /messages/conversations/:id/messages
+Backend -> DB: Récupérer les messages
+Backend -> DB: Marquer les messages comme lus
+Backend -> DB: Mettre à jour unreadCount = 0
+Backend --> Frontend: Messages avec statut mis à jour
+Frontend --> UserB: Afficher les messages
+
+== Déconnexion ==
+
+UserA -> Frontend: Fermer l'application
+Frontend -> Socket: Déconnexion socket
+Socket -> DB: Mettre à jour User.isOnline = false, User.lastSeen = now
+Socket -> Socket: Diffuser le statut hors ligne (broadcastOnlineStatus)
+
+@enduml 

@@ -1,0 +1,50 @@
+@startuml SUIV - Diagramme de Composants Simplifié
+
+skinparam componentStyle rectangle
+skinparam backgroundColor white
+
+package "Frontend" {
+  [Interface Utilisateur] as UI
+  [Assistant IA] as AIAssistant
+  [Gestion Profil] as Profile
+  [Messagerie] as Messaging
+  [Compétences & Formation] as Skills
+}
+
+package "Backend" {
+  [Serveur API] as APIServer
+  [Serveur WebSocket] as SocketServer
+  [Services IA] as AIServices
+}
+
+database "Base de Données" as DB
+
+cloud "Services Externes" {
+  [API Cohere] as CohereAPI
+}
+
+' Relations principales
+UI --> AIAssistant
+UI --> Profile
+UI --> Messaging
+UI --> Skills
+
+AIAssistant --> APIServer
+Profile --> APIServer
+Messaging --> APIServer
+Messaging --> SocketServer
+Skills --> APIServer
+
+APIServer --> DB
+SocketServer --> DB
+APIServer --> AIServices
+AIServices --> CohereAPI
+
+' Interfaces simplifiées
+interface "HTTP/REST" as HTTPAPI
+interface "WebSocket" as WSInterface
+
+APIServer -- HTTPAPI
+SocketServer -- WSInterface
+
+@enduml 

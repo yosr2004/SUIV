@@ -1,0 +1,36 @@
+@startuml Message Sending Sequence Diagram
+
+actor "Utilisateur A" as UserA
+actor "Utilisateur B" as UserB
+participant "Frontend (Client A)" as FrontendA
+participant "Frontend (Client B)" as FrontendB
+participant "Backend (Server)" as Backend
+participant "Socket.io Server" as Socket
+database "MongoDB" as DB
+
+== Envoi de Message ==
+
+UserA -> FrontendA: Saisir et envoyer un message
+FrontendA -> Socket: Émission 'new_message'\n{senderId, receiverId, content, conversationId}
+Socket -> DB: Créer Message\n{senderId, receiverId, conversationId, content}
+Socket -> DB: Mettre à jour Conversation\n{lastMessage, lastMessageText, lastMessageTime}
+Socket -> DB: Incrémenter Conversation.unreadCount pour receiverId
+
+alt UserB est en ligne
+    Socket -> FrontendB: Émission 'message_received' à UserB
+    FrontendB --> UserB: Afficher le nouveau message en temps réel
+    
+    UserB -> FrontendB: Visualiser le message
+    FrontendB -> Backend: GET /messages/conversations/:id/messages
+    Backend -> DB: Marquer les messages comme lus
+    Backend -> DB: Mettre à jour unreadCount = 0
+    Backend --> FrontendB: Messages avec statut mis à jour
+    Socket -> FrontendA: Émission 'message_read'\n{conversationId, messageIds}
+    FrontendA --> UserA: Afficher indicateur de lecture (vu)
+else UserB est hors ligne
+    DB -> DB: Conserver unreadCount jusqu'à la prochaine connexion
+    Socket -> FrontendA: Émission 'message_delivered'\n{messageId, status: 'delivered'}
+    FrontendA --> UserA: Afficher indicateur d'envoi réussi
+end
+
+@enduml 

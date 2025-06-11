@@ -1,0 +1,16 @@
+Test Socket.IO commencé le 2025-05-15T20:00:10.832Z
+[2025-05-15T20:00:10.835Z] Création d'utilisateurs de test avec IDs: test_user_1_1747339210835 et test_user_2_1747339210835
+[2025-05-15T20:00:10.982Z] Socket 1 connecté: ID=nbBEOSO2TeFP6f34AAAC
+[2025-05-15T20:00:11.022Z] Socket 2 connecté: ID=Xtyqp045kyoyyrx-AAAD
+[2025-05-15T20:00:11.039Z] Les deux sockets sont connectés, démarrage des tests...
+[2025-05-15T20:00:14.046Z] Test 1: Émission des événements 'join'
+[2025-05-15T20:00:16.055Z] Test 2: Envoi d'un message avec format 'sendMessage'
+[2025-05-15T20:00:18.085Z] Test 3: Envoi d'un message avec format 'send_message'
+[2025-05-15T20:00:18.146Z] Socket 1 a reçu un message (event: message): {"senderId":"test_user_2_1747339210835","recipientId":"test_user_1_1747339210835","content":"Test message using 'send_message' event and 'content' field","timestamp":"2025-05-15T20:00:18.141Z","delivered":true,"status":"delivered"}
+[2025-05-15T20:00:18.159Z] Socket 2 a reçu un message (event: message): {"senderId":"test_user_2_1747339210835","recipientId":"test_user_1_1747339210835","content":"Test message using 'send_message' event and 'content' field","timestamp":"2025-05-15T20:00:18.141Z","delivered":true,"status":"delivered"}
+[2025-05-15T20:00:20.146Z] Test 4: Envoi d'un message sans conversationId
+[2025-05-15T20:00:23.167Z] Tests terminés, déconnexion des sockets...
+[2025-05-15T20:00:23.170Z] Socket 1 déconnecté: io client disconnect
+[2025-05-15T20:00:23.172Z] Socket 2 déconnecté: io client disconnect
+[2025-05-15T20:00:24.177Z] Log enregistré dans C:\Users\Dell\OneDrive\Bureau\SUIV0\SUIV\suiv\socket-test-log.txt
+[2025-05-15T20:00:24.179Z] Script de test terminé
